@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Harmony - Detailed Emotional Analysis</title>
+    
+    <!-- Privacy-Focused Google Analytics -->
+    <script>
+      // Only load if user consents
+      function initAnalytics() {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-YOUR_MEASUREMENT_ID';
+        document.head.appendChild(script);
+        
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-YOUR_MEASUREMENT_ID', { 
+          anonymize_ip: true,
+          allow_google_signals: false,
+          debug_mode: true // Remove after testing
+        });
+      }
+    </script>
+    
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --happy: #00b894;
+            --sad: #0984e3;
+            --angry: #d63031;
+            --anxious: #fdcb6e;
+            --tired: #636e72;
+            --neutral: #a29bfe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #a29bfe);
+            color: white;
+            padding: 1.8rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .step {
+            padding: 2rem;
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(to right, var(--primary), #a29bfe);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Mood Selection Cards */
+        .mood-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 600px) {
+            .mood-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mood-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+        }
+
+        .mood-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .mood-card.selected {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+        }
+
+        .mood-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Question Cards */
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .options-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .options-group {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .option-btn {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.1);
+            font-weight: 600;
+        }
+
+        /* Results Page */
+        .result-content {
+            padding: 2rem;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), #fd79a8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .analysis-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .analysis-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .analysis-section p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .suggestion-item {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .suggestion-item:before {
+            content: "•";
+            color: var(--primary);
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -3px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #636e72, #b2bec3);
+        }
+
+        /* Cookie Consent Banner */
+        #cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+        #cookie-banner button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner">
+        <p>We use cookies to improve your experience. <button onclick="acceptCookies()">Accept</button></p>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Mood Harmony</h1>
+            <p class="subtitle">Detailed Emotional Analysis</p>
+        </header>
+
+        <!-- Step 1: Welcome -->
+        <div class="step active" id="step1">
+            <h2>Welcome to Mood Harmony</h2>
+            <div class="form-group">
+                <label for="userName">What's your name?</label>
+                <input type="text" id="userName" placeholder="Enter your name">
+            </div>
+            <button class="btn" id="startBtn">Begin Assessment</button>
+        </div>
+
+        <!-- Step 2: Mood Selection -->
+        <div class="step" id="step2">
+            <h2>How Are You Feeling Today?</h2>
+            <p>Select the option that best matches your current mood</p>
+            
+            <div class="mood-options">
+                <div class="mood-card" onclick="selectMood('happy')">
+                    <div class="mood-emoji">😊</div>
+                    <h3>Happy</h3>
+                    <p>Positive, joyful, content</p>
+                </div>
+                
+                <div class="mood-card" onclick="selectMood('sad')">
+                    <div class="mood-emoji">😢</div>
+                    <h3>Sad</h3>
+                    <p>Down, tearful, low</p>
+                </div>
+                
+                <div class="mood-card" onclick="selectMood('anxious')">
+                    <div class="mood-emoji">😰</div>
+                    <h3>Anxious</h3>
+                    <p>Worried, nervous</p>
+                </div>
+                
+                <div class="mood-card" onclick="selectMood('angry')">
+                    <div class="mood-emoji">😠</div>
+                    <h3>Angry</h3>
+                    <p>Frustrated, irritated</p>
+                </div>
+                
+                <div class="mood-card" onclick="selectMood('tired')">
+                    <div class="mood-emoji">😴</div>
+                    <h3>Tired</h3>
+                    <p>Fatigued, drained</p>
+                </div>
+                
+                <div class="mood-card" onclick="selectMood('neutral')">
+                    <div class="mood-emoji">😐</div>
+                    <h3>Neutral</h3>
+                    <p>Neither positive nor negative</p>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+                <button class="btn" id="confirmMoodBtn" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Detailed Questions -->
+        <div class="step" id="step3">
+            <h2>Help Us Understand Your Mood Better</h2>
+            <p>Please answer these questions honestly for a more accurate analysis</p>
+            
+            <!-- Question Set 1 -->
+            <div class="question-card">
+                <div class="question-text">1. How would you describe your energy levels today?</div>
+                <div class="options-group">
+                    <button class="option-btn" onclick="selectQuestionOption(this, 1)">Very Low</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 1)">Low</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 1)">Normal</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 1)">High</button>
+                </div>
+            </div>
+            
+            <!-- Question Set 2 -->
+            <div class="question-card">
+                <div class="question-text">2. How easily are you able to concentrate right now?</div>
+                <div class="options-group">
+                    <button class="option-btn" onclick="selectQuestionOption(this, 2)">Very Difficult</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 2)">Somewhat Difficult</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 2)">Moderately Easy</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 2)">Very Easy</button>
+                </div>
+            </div>
+            
+            <!-- Question Set 3 -->
+            <div class="question-card">
+                <div class="question-text">3. How would you rate your sleep quality last night?</div>
+                <div class="options-group">
+                    <button class="option-btn" onclick="selectQuestionOption(this, 3)">Very Poor</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 3)">Poor</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 3)">Good</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 3)">Excellent</button>
+                </div>
+            </div>
+            
+            <!-- Question Set 4 -->
+            <div class="question-card">
+                <div class="question-text">4. How connected do you feel to others today?</div>
+                <div class="options-group">
+                    <button class="option-btn" onclick="selectQuestionOption(this, 4)">Very Isolated</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 4)">Somewhat Isolated</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 4)">Moderately Connected</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 4)">Very Connected</button>
+                </div>
+            </div>
+            
+            <!-- Question Set 5 -->
+            <div class="question-card">
+                <div class="question-text">5. How would you describe your appetite today?</div>
+                <div class="options-group">
+                    <button class="option-btn" onclick="selectQuestionOption(this, 5)">Much Less Than Usual</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 5)">Slightly Less</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 5)">Normal</button>
+                    <button class="option-btn" onclick="selectQuestionOption(this, 5)">Increased</button>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(2)">Previous</button>
+                <button class="btn" id="generateResultsBtn">Generate Results</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Results -->
+        <div class="step" id="step4">
+            <div class="result-content">
+                <div class="avatar" id="resultAvatar">😊</div>
+                <h2 id="resultTitle">Your Detailed Mood Analysis</h2>
+                
+                <div class="analysis-section">
+                    <h3>Understanding Your Current State</h3>
+                    <p id="whyContent">Based on your responses, our analysis suggests...</p>
+                    <p id="additionalAnalysis">Looking deeper at your answers...</p>
+                </div>
+                
+                <div class="analysis-section">
+                    <h3>Personalized Suggestions</h3>
+                    <div id="suggestionsList"></div>
+                    <p id="longTermAdvice">For longer-term improvement...</p>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">Start Over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced mood database with detailed analysis
+        const moodDatabase = {
+            happy: {
+                emoji: "😊",
+                why: "Your responses indicate you're experiencing genuine happiness. This positive emotional state often emerges when our basic psychological needs for autonomy, competence, and relatedness are being met. The combination of your energy levels, social connectedness, and overall satisfaction suggests you're in a good place emotionally.",
+                additional: "Your specific answers about energy, concentration, and social connection all point toward what psychologists call 'flourishing' - a state of optimal mental health where people experience positive emotions, positive psychological functioning, and positive social functioning.",
+                suggestions: [
+                    "Continue activities that bring you joy and satisfaction",
+                    "Consider journaling about what's working well in your life",
+                    "Share your positive energy with others through acts of kindness",
+                    "Set new personal goals to maintain this positive momentum"
+                ],
+                longTerm: "To maintain this positive state, focus on building resilience through regular gratitude practice, maintaining strong social connections, and engaging in activities that provide both pleasure and meaning."
+            },
+            sad: {
+                emoji: "😢",
+                why: "Your responses suggest you're experiencing sadness, which is a natural human emotion that often serves as a signal that something in your life needs attention. The combination of low energy, possible sleep disturbances, and feelings of isolation you reported are common markers of sadness. This emotional state typically arises from perceived loss, disappointment, or unmet needs.",
+                additional: "Your answers about energy levels and social connection particularly stand out. The fact that you reported low energy and possible social withdrawal suggests this may be more than just temporary sadness. It could indicate what psychologists call 'depressive mood' - a prolonged state of low mood that affects daily functioning.",
+                suggestions: [
+                    "Allow yourself to feel this emotion without judgment - sadness often contains important messages",
+                    "Reach out to someone you trust and share how you're feeling",
+                    "Engage in gentle physical activity, even just a short walk",
+                    "Practice self-compassion by speaking to yourself as you would a dear friend"
+                ],
+                longTerm: "If this sadness persists, consider exploring its roots through journaling or talking with a professional. Building a toolkit of coping strategies (like mindfulness, social connection, and enjoyable activities) can help manage future episodes."
+            },
+            anxious: {
+                emoji: "😰",
+                why: "Your responses indicate feelings of anxiety. Anxiety typically arises when we perceive threats to our well-being, whether real or imagined. Your answers about concentration difficulties and possible sleep issues are common markers of anxiety. This state of heightened alertness was evolutionarily advantageous for dealing with immediate dangers, but in modern life can become chronic.",
+                additional: "The specific pattern of your responses - particularly if you reported high energy but poor concentration - suggests your nervous system may be in a state of hyperarousal. This is characteristic of the 'fight or flight' response, where the body prepares to deal with perceived threats.",
+                suggestions: [
+                    "Practice grounding techniques like the 5-4-3-2-1 method (name 5 things you see, 4 you can touch, etc.)",
+                    "Try diaphragmatic breathing - slow, deep breaths that engage your diaphragm",
+                    "Limit caffeine and sugar intake which can exacerbate anxiety",
+                    "Create a 'worry period' - set aside 15 minutes daily to process anxious thoughts"
+                ],
+                longTerm: "Consider cognitive behavioral techniques to identify and challenge anxious thought patterns. Regular meditation and establishing predictable routines can also help regulate your nervous system over time."
+            },
+            angry: {
+                emoji: "😠",
+                why: "Your responses suggest you're experiencing anger, which typically arises when we feel our boundaries have been violated or we're being treated unfairly. The energy levels and physical tension you may be feeling are part of the body's preparation to defend itself. Anger serves an important protective function but can become problematic when excessive or misdirected.",
+                additional: "Your pattern of responses indicates heightened physiological arousal combined with possible frustration. This suggests what psychologists call 'hot anger' - an immediate, intense emotional response to a perceived provocation or injustice.",
+                suggestions: [
+                    "Before reacting, try the STOP technique: Stop, Take a breath, Observe your feelings, Proceed mindfully",
+                    "Channel the energy physically through exercise or vigorous activity",
+                    "Practice assertive communication using 'I' statements",
+                    "Identify the underlying need not being met (respect, fairness, etc.)"
+                ],
+                longTerm: "Developing emotional regulation skills through mindfulness and learning conflict resolution strategies can help manage anger more effectively. Recognizing early warning signs (like muscle tension or irritability) can help intervene before anger escalates."
+            },
+            tired: {
+                emoji: "😴",
+                why: "Your responses indicate significant fatigue. This state of tiredness can stem from physical, emotional, or mental exhaustion. Your answers about energy levels, concentration, and possibly sleep quality all point toward depletion of your body's resources. Fatigue is often the body's way of signaling the need for rest and recovery.",
+                additional: "The specific combination of your responses suggests what health professionals call 'unrefreshing sleep' - where even after sleeping, you don't feel restored. This could indicate poor sleep quality, stress, or other underlying factors draining your energy reserves.",
+                suggestions: [
+                    "Prioritize sleep hygiene - consistent bedtime, cool dark room, no screens before bed",
+                    "Take short, scheduled breaks throughout your day",
+                    "Stay hydrated and eat small, balanced meals to maintain energy",
+                    "Practice the 20-20-20 rule for eye strain: every 20 minutes, look at something 20 feet away for 20 seconds"
+                ],
+                longTerm: "Consider tracking your sleep patterns and energy levels to identify trends. Building regular relaxation practices and setting sustainable work/rest rhythms can help prevent chronic fatigue. If exhaustion persists, consult a healthcare professional."
+            },
+            neutral: {
+                emoji: "😐",
+                why: "Your responses suggest a neutral emotional state - neither particularly positive nor negative. This can represent emotional stability or possibly emotional detachment. Neutral moods are normal and can serve as a baseline between more intense emotional experiences. They may indicate a period of transition or low emotional arousal.",
+                additional: "Your pattern of medium-range answers across different dimensions suggests what psychologists call 'emotional homeostasis' - a balanced, steady state. However, if this neutrality feels more like numbness or disconnection, it could signal emotional suppression or burnout.",
+                suggestions: [
+                    "Check in with your basic needs - hunger, hydration, rest, and social connection",
+                    "Try activities that typically bring you joy or engagement, even if you don't feel like it initially",
+                    "Practice mindfulness to become more aware of subtle emotional states",
+                    "Consider whether there are emotions you might be avoiding or suppressing"
+                ],
+                longTerm: "Developing emotional granularity - the ability to identify subtle differences in feelings - can help you better understand and work with neutral states. Regular self-reflection can help determine if neutrality represents healthy balance or emotional disconnection."
+            }
+        };
+
+        // Current user data
+        const userData = {
+            name: '',
+            mood: '',
+            answers: []
+        };
+
+        // Check for cookie consent
+        function checkCookieConsent() {
+            if(localStorage.getItem('cookiesAccepted') === 'true') {
+                initAnalytics();
+            } else {
+                document.getElementById('cookie-banner').style.display = 'block';
+            }
+        }
+
+        // Handle cookie acceptance
+        function acceptCookies() {
+            localStorage.setItem('cookiesAccepted', 'true');
+            document.getElementById('cookie-banner').style.display = 'none';
+            initAnalytics();
+        }
+
+        // Track mood selection
+        function trackMoodSelection(mood) {
+            if(typeof gtag !== 'undefined') {
+                gtag('event', 'mood_selected', {
+                    'mood_type': mood
+                });
+            }
+        }
+
+        // Track assessment completion
+        function trackAssessmentComplete() {
+            if(typeof gtag !== 'undefined') {
+                gtag('event', 'assessment_completed', {
+                    'mood': userData.mood,
+                    'energy_level': userData.answers[0],
+                    'concentration': userData.answers[1],
+                    'sleep_quality': userData.answers[2]
+                });
+            }
+        }
+
+        // Modified selectMood function with tracking
+        function selectMood(mood) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.mood-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            event.currentTarget.classList.add('selected');
+            
+            // Store the selected mood
+            userData.mood = mood;
+            
+            // Enable continue button
+            document.getElementById('confirmMoodBtn').disabled = false;
+            
+            // Track the selection
+            trackMoodSelection(mood);
+        }
+
+        // Select question option
+        function selectQuestionOption(button, questionIndex) {
+            const optionsGroup = button.parentElement;
+            optionsGroup.querySelectorAll('.option-btn').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            button.classList.add('selected');
+            
+            // Store the answer (convert to numerical value)
+            const optionText = button.textContent;
+            let value;
+            
+            switch(questionIndex) {
+                case 1: // Energy levels
+                    if (optionText === "Very Low") value = 1;
+                    else if (optionText === "Low") value = 2;
+                    else if (optionText === "Normal") value = 3;
+                    else value = 4;
+                    break;
+                case 2: // Concentration
+                    if (optionText === "Very Difficult") value = 1;
+                    else if (optionText === "Somewhat Difficult") value = 2;
+                    else if (optionText === "Moderately Easy") value = 3;
+                    else value = 4;
+                    break;
+                case 3: // Sleep quality
+                    if (optionText === "Very Poor") value = 1;
+                    else if (optionText === "Poor") value = 2;
+                    else if (optionText === "Good") value = 3;
+                    else value = 4;
+                    break;
+                case 4: // Social connection
+                    if (optionText === "Very Isolated") value = 1;
+                    else if (optionText === "Somewhat Isolated") value = 2;
+                    else if (optionText === "Moderately Connected") value = 3;
+                    else value = 4;
+                    break;
+                case 5: // Appetite
+                    if (optionText === "Much Less Than Usual") value = 1;
+                    else if (optionText === "Slightly Less") value = 2;
+                    else if (optionText === "Normal") value = 3;
+                    else value = 4;
+                    break;
+            }
+            
+            userData.answers[questionIndex - 1] = value;
+        }
+
+        // Show results based on selected mood and answers
+        function showResults() {
+            const moodInfo = moodDatabase[userData.mood];
+            
+            // Update the results page
+            document.getElementById('resultAvatar').textContent = moodInfo.emoji;
+            document.getElementById('resultTitle').textContent = `${userData.name}'s Detailed Mood Analysis`;
+            document.getElementById('whyContent').textContent = moodInfo.why;
+            document.getElementById('additionalAnalysis').textContent = moodInfo.additional;
+            document.getElementById('longTermAdvice').textContent = moodInfo.longTerm;
+            
+            // Add suggestions to list
+            const suggestionsList = document.getElementById('suggestionsList');
+            suggestionsList.innerHTML = '';
+            moodInfo.suggestions.forEach(suggestion => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = suggestion;
+                suggestionsList.appendChild(div);
+            });
+            
+            // Enhance analysis based on specific answers
+            enhanceAnalysisBasedOnAnswers();
+            
+            // Track completion
+            trackAssessmentComplete();
+            
+            // Go to results page
+            goToStep(4);
+        }
+
+        // Enhance analysis based on specific question answers
+        function enhanceAnalysisBasedOnAnswers() {
+            const whyContent = document.getElementById('whyContent');
+            const additionalAnalysis = document.getElementById('additionalAnalysis');
+            
+            // Energy level analysis
+            if (userData.answers[0] <= 2) { // Low energy
+                whyContent.textContent += " Your reported low energy levels suggest this mood may be physically draining as well as emotionally impactful.";
+            }
+            
+            // Concentration analysis
+            if (userData.answers[1] <= 2) { // Difficulty concentrating
+                additionalAnalysis.textContent += " The concentration difficulties you reported are common with this emotional state and may improve as your mood stabilizes.";
+            }
+            
+            // Sleep analysis
+            if (userData.answers[2] <= 2) { // Poor sleep
+                additionalAnalysis.textContent += " Your sleep disturbances could be both contributing to and resulting from your current mood, creating a cycle worth addressing.";
+            }
+        }
+
+        // Navigate between steps
+        function goToStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show the selected step
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Start the assessment
+        function startAssessment() {
+            const name = document.getElementById('userName').value.trim();
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            userData.name = name;
+            
+            // Track assessment start if analytics is loaded
+            if(typeof gtag !== 'undefined') {
+                gtag('event', 'assessment_started');
+            }
+            
+            goToStep(2);
+        }
+
+        // Initialize the app
+        function init() {
+            checkCookieConsent();
+            
+            document.getElementById('startBtn').addEventListener('click', startAssessment);
+            document.getElementById('confirmMoodBtn').addEventListener('click', () => goToStep(3));
+            document.getElementById('generateResultsBtn').addEventListener('click', showResults);
+        }
+
+        // Start the app when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
